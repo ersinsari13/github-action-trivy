@@ -32,12 +32,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       
       - name: Build multi-architecture image locally
-        run: |
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            --tag ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            --output=type=docker,dest=image.tar \
-            .
+        uses: docker/build-push-action@v6
+        with:
+            platforms: linux/amd64, linux/arm64
+            push: false
+            tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -54,8 +53,5 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-      - name: push image
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+      - name: Build multi-architecture image locally
+        run: docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
