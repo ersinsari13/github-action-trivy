@@ -39,12 +39,13 @@ jobs:
             .
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
           format: 'sarif'
           output: 'trivy-results.sarif'
-          platform: 'linux/arm64'
+        env:
+          TRIVY_PLATFORM: linux/arm64
 
       - name: Debug SARIF File Path
         run: ls -l trivy-results.sarif
