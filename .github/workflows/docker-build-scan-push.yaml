@@ -44,8 +44,7 @@ jobs:
           image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
           format: 'sarif'
           output: 'trivy-results.sarif'
-        env:
-          TRIVY_PLATFORM: linux/arm64
+          trivy-config: trivy.yaml
 
       - name: Debug SARIF File Path
         run: ls -l trivy-results.sarif
