@@ -39,7 +39,8 @@ jobs:
       - name: Build multi-architecture image locally
         uses: docker/build-push-action@v6
         with:
-          push: true
+          push: false
+          load: true
           tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
           platforms: linux/arm64
       - name: Run Trivy vulnerability scanner
@@ -57,5 +58,5 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-      # - name: Build multi-architecture image locally
-      #   run: docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+      - name: Build multi-architecture image locally
+        run: docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
