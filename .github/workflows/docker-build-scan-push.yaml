@@ -36,7 +36,6 @@ jobs:
             docker buildx build \
             --platform linux/amd64,linux/arm64 \
             -t docker.io/ersinsari/full-devsecops:latest \
-            --output type=docker \
             .
 
       - name: Run Trivy vulnerability scanner
@@ -45,6 +44,8 @@ jobs:
           image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
           format: 'sarif'
           output: 'trivy-results.sarif'
+        env:
+          TRIVY_PLATFORM: linux/arm64
 
       - name: Debug SARIF File Path
         run: ls -l trivy-results.sarif
