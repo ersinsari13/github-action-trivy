@@ -35,7 +35,8 @@ jobs:
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            --tag ${{ env.IMAGE_NAME }}:${{ github.sha }}
+            --tag ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            .
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
