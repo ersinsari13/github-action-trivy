@@ -40,7 +40,7 @@ jobs:
         run: |
             docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            -t docker.io/ersinsari/full-devsecops:latest \
+            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             .
 
       - name: Run Trivy vulnerability scanner
@@ -50,10 +50,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
           github-pat: '${{ secrets.GITHUB }}'
-          platform: 'linux/arm64'
-
-      - name: Debug SARIF File Path
-        run: ls -l trivy-results.sarif
+          trivy-config: trivy.yaml
 
       - name: Upload Trivy SARIF Report
         uses: github/codeql-action/upload-sarif@v3
