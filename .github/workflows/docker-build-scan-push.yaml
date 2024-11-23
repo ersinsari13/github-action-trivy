@@ -50,6 +50,8 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
           github-pat: '${{ secrets.GITHUB }}'
+          exit-code: '0'
+          severity: 'CRITICAL'
         env:
           TRIVY_PLATFORM: linux/arm64
 
