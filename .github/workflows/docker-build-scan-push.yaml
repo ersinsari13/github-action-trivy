@@ -49,8 +49,8 @@ jobs:
           image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
           format: 'sarif'
           output: 'trivy-results.sarif'
-          github-pat: '${{ secrets.GITHUB }}'
           exit-code: '1'
+          vuln-type: 'os,library'
           severity: 'CRITICAL'
         env:
           TRIVY_PLATFORM: linux/arm64
