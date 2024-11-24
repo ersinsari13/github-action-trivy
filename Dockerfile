@@ -11,7 +11,14 @@ FROM amazoncorretto:17-alpine3.18
 
 WORKDIR /app
 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 COPY --from=builder /app/target/*.jar /app.jar
+
+RUN chown appuser:appgroup /app.jar
+
+USER appuser
+
 
 ENV SPRING_PROFILES_ACTIVE=mysql
 
