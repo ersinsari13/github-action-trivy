@@ -33,6 +33,8 @@ jobs:
         uses: instrumenta/conftest-action@master
         with:
           files: Dockerfile
+          policy: dockerfile-conftest.rego
+
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
