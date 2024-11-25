@@ -20,6 +20,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_USERNAME: "GITHUB_ACTION_CI"
+          SLACK_COLOR: "${{ job.status }}"
+          SLACK_TITLE: "CI STATUS"
+          MSG_MINIMAL: "ref,actions url"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3.0.0
@@ -73,12 +82,4 @@ jobs:
       - name: Pushing multi-architecture image locally
         run: docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_USERNAME: "GITHUB_ACTION_CI"
-          SLACK_COLOR: "${{ job.status }}"
-          SLACK_TITLE: "CI STATUS"
-          MSG_MINIMAL: "ref,actions url"
-          
+
