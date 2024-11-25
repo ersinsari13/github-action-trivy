@@ -52,14 +52,6 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
           platforms: linux/arm64
 
-      - name: Cache Trivy database
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/trivy
-          key: trivy-db-${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
-          restore-keys: |
-            trivy-db-${{ runner.os }}-
-
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -80,3 +72,13 @@ jobs:
 
       - name: Pushing multi-architecture image locally
         run: docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_USERNAME: "GITHUB_ACTION_CI"
+          SLACK_COLOR: "${{ job.status }}"
+          SLACK_TITLE: "CI STATUS"
+          MSG_MINIMAL: "ref,actions url"
+          
