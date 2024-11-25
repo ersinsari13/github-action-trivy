@@ -20,15 +20,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_USERNAME: "GITHUB_ACTION_CI"
-          SLACK_COLOR: "${{ job.status }}"
-          SLACK_TITLE: "CI STATUS"
-          MSG_MINIMAL: "ref,actions url"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3.0.0
@@ -44,7 +35,6 @@ jobs:
         with:
           files: Dockerfile
           policy: dockerfile-conftest.rego
-
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -82,4 +72,16 @@ jobs:
       - name: Pushing multi-architecture image locally
         run: docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-
+  notify-on-failure:
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Slack Notification on Failure
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_USERNAME: "GITHUB_ACTION_CI"
+          SLACK_ICON_URL: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+          SLACK_COLOR: "#FF0000"
+          SLACK_TITLE: "Workflow Failed"
+          SLACK_MESSAGE: "Job failed in the GitHub Actions workflow. Check details: ${{ github.workflow }} in ${{ github.repository }}."
