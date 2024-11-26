@@ -23,6 +23,9 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          
+      - name: Grant Execute Permission to Maven Wrapper
+        run: chmod +x ./mvnw
 
       # Compile
       - name: Compile
