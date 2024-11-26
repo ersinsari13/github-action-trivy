@@ -17,25 +17,22 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Set up JDK
-      - name: Set up JDK
+      # Set up JDK and Maven
+      - name: Set up JDK and Maven
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '17' # Projenize uygun JDK sürümünü belirtin
           distribution: 'temurin'
-          
-      - name: Grant Execute Permission to Maven Wrapper
-        run: chmod +x ./mvnw
+          cache: maven # Maven'ı yükler ve Maven cache'ini etkinleştirir
 
       # Compile
       - name: Compile
-        run: ./mvnw clean compile
+        run: mvn clean compile
 
       # Test Cases
       - name: Run Tests
-        run: ./mvnw test
-
+        run: mvn test
 
       # Build
       - name: Build Artifact
-        run: ./mvnw clean install
+        run: mvn clean install
