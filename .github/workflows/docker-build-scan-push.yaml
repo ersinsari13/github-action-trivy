@@ -1,87 +1,37 @@
-name: Create and publish a Docker image
+name: CI Pipeline
+
 on:
   push:
     branches:
       - main
-env:
-  REGISTRY: docker.io
-  IMAGE_NAME: ersinsari/full-devsecops
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build-scan-and-push-image:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-      security-events: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      # Git Checkout
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3.0.0
+      # Set up JDK
+      - name: Set up JDK
+        uses: actions/setup-java@v3
         with:
-          platforms: 'arm64'
+          java-version: '17' 
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      # Compile
+      - name: Compile
+        run: ./mvnw clean compile
 
-      - name: Scan Dockerfile with Conftest
-        uses: instrumenta/conftest-action@master
-        continue-on-error: true
-        with:
-          files: Dockerfile
-          policy: dockerfile-conftest.rego
+      # Test Cases
+      - name: Run Tests
+        run: ./mvnw test
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      - name: Build multi-architecture image locally
-        uses: docker/build-push-action@v6
-        with:
-          push: false
-          load: true
-          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
-          platforms: linux/arm64
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-        env:
-          TRIVY_PLATFORM: linux/arm64
-
-      - name: Upload Trivy SARIF Report
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'trivy-results.sarif'
-
-      - name: Pushing multi-architecture image locally
-        run: docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
-
-  notify-on-failure:
-    runs-on: ubuntu-latest
-    if: failure()
-    steps:
-      - name: Slack Notification on Failure
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_USERNAME: "GITHUB_ACTION_CI"
-          SLACK_ICON_URL: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
-          SLACK_COLOR: "#FF0000"
-          SLACK_TITLE: "Workflow Failed"
-          SLACK_MESSAGE: "Job failed in the GitHub Actions workflow. Check details: ${{ github.workflow }} in ${{ github.repository }}."
+      # Build
+      - name: Build Artifact
+        run: ./mvnw clean install
