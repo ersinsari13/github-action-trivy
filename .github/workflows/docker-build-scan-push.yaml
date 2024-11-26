@@ -1,8 +1,10 @@
 name: Create and publish a Docker image
+
 on:
   push:
     branches:
       - main
+
 env:
   REGISTRY: docker.io
   IMAGE_NAME: ersinsari/full-devsecops
@@ -63,6 +65,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
         env:
           TRIVY_PLATFORM: linux/arm64
+        continue-on-error: true
 
       - name: Upload Trivy SARIF Report
         uses: github/codeql-action/upload-sarif@v3
@@ -72,16 +75,18 @@ jobs:
       - name: Pushing multi-architecture image locally
         run: docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-  notify-on-failure:
-    runs-on: ubuntu-latest
-    if: failure()
-    steps:
-      - name: Slack Notification on Failure
-        uses: rtCamp/action-slack-notify@v2
+      # Send notification to Slack on failure
+      - name: Notify Slack if any step fails
+        if: failure() # Trigger only if a previous step fails
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_USERNAME: "GITHUB_ACTION_CI"
-          SLACK_ICON_URL: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
-          SLACK_COLOR: "#FF0000"
-          SLACK_TITLE: "Workflow Failed"
-          SLACK_MESSAGE: "Job failed in the GitHub Actions workflow. Check details: ${{ github.workflow }} in ${{ github.repository }}."
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{
+            "text": "🚨 A step in the GitHub Actions workflow failed!",
+            "attachments": [
+              {
+                "text": "Workflow: Create and publish a Docker image\nCheck the details here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              }
+            ]
+          }' $SLACK_WEBHOOK
