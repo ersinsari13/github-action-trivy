@@ -81,7 +81,7 @@ jobs:
         uses: rtCamp/action-slack-notify@v2  
         with:
           status: failure 
-          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           text: "🚨 A step in the GitHub Actions workflow failed!"
           attachment: |
             Workflow: Create and publish a Docker image
