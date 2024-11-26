@@ -77,16 +77,12 @@ jobs:
 
       # Send notification to Slack on failure
       - name: Notify Slack if any step fails
-        if: failure() # Trigger only if a previous step fails
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-        run: |
-          curl -X POST -H 'Content-type: application/json' \
-          --data '{
-            "text": "🚨 A step in the GitHub Actions workflow failed!",
-            "attachments": [
-              {
-                "text": "Workflow: Create and publish a Docker image\nCheck the details here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-              }
-            ]
-          }' $SLACK_WEBHOOK
+        if: failure() 
+        uses: rtCamp/action-slack-notify@v2  
+        with:
+          status: failure 
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          text: "🚨 A step in the GitHub Actions workflow failed!"
+          attachment: |
+            Workflow: Create and publish a Docker image
+            Check the details here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
