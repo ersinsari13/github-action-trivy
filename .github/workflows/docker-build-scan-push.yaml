@@ -65,7 +65,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
         env:
           TRIVY_PLATFORM: linux/arm64
-        continue-on-error: true
+
 
       - name: Upload Trivy SARIF Report
         uses: github/codeql-action/upload-sarif@v3
